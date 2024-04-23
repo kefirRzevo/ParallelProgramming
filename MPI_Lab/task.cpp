@@ -1,9 +1,7 @@
 /*
-              du/dt + a * du/dx = f(x, t),     0 <= t <= T, 0 <= x <= X
-    We solve  u(x, 0) = phi(x),                0 <= x <= X
-              u(0, t) = psi(t),                0 <= t <= T
-
-    To solve the PDE let us introduce a discrete mesh:
+            du/dt + a * du/dx = f(x, t),     0 <= t <= T, 0 <= x <= X
+    System  u(x, 0) = phi(x),                0 <= x <= X
+            u(0, t) = psi(t),                0 <= t <= T
 
       t = k * tau, 0 <= k <= K
       x = m * h,   0 <= m <= M
@@ -11,13 +9,10 @@
       K * tau = T
       M * h   = X
 
-    We will be using 2D explicit finite difference method (FDM):
-
       (u[k+1][m-1] - u[k][m-1] + u[k+1][m] - u[k][m]) / (2*tau) + (u[k+1][m] -
       u[k+1][m-1] + u[k][m] - u[k][m-1]) / (2*h) = f[k+1/2][m+1/2]
 
-    where k and m correspond to time and space steps respectively.
-    Or, if we change k to start from 1:
+      k = k + 1
 
       (u[k][m-1] - u[k-1][m-1] + u[k][m] - u[k-1][m]) / (2*tau) + (u[k][m] -
       u[k][m-1] + u[k-1][m] - u[k-1][m-1]) / (2*h) = f[k-1/2][m+1/2]
