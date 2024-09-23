@@ -1,9 +1,9 @@
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <mutex>
-#include <chrono>
 #include <thread>
 #include <vector>
 
@@ -133,7 +133,7 @@ void thread_integrate() {
 auto main(int argc, const char *argv[]) -> int {
   try {
     switch (argc) {
-    case 3: 
+    case 3:
       epsilon = std::atof(argv[2]);
     case 2:
       n_threads = std::atoll(argv[1]);
@@ -161,9 +161,11 @@ auto main(int argc, const char *argv[]) -> int {
       thr.join();
     }
     auto time_end = high_resolution_clock::now();
-    auto time_elapsed = duration_cast<milliseconds>(time_end - time_start).count();
-    //std::cout << time_elapsed << std::endl;
-    std::cout << std::setprecision(20) << "Integral is " << g_result << std::endl;
+    auto time_elapsed =
+        duration_cast<milliseconds>(time_end - time_start).count();
+    // std::cout << time_elapsed << std::endl;
+    std::cout << std::setprecision(20) << "Integral is " << g_result
+              << std::endl;
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
   }

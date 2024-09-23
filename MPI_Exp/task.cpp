@@ -6,8 +6,8 @@
 #include <iostream>
 #include <stdexcept>
 
-//mpic++ -std=c++17 task.cpp -lgmp -lgmpxx -O3 -o a1.out
-//mpirun --map-by :oversubscribe -n 2 a.out 100000 t
+//mpic++ -std=c++17 task.cpp -lgmp -lgmpxx -o build/MPI_Exp/MPI_Exp_Task
+//mpirun --map-by :oversubscribe -n 2 build/MPI_Exp/MPI_Exp_Task 100000 t
 
 enum class what_show: bool
 {

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// mpicc task3.c -O3 -o a3.out
-// mpirun --map-by :oversubscribe -n 15 a3.out
+// mpicc task3.c -o build/MPI_Intro/MPI_Intro_Task3
+// mpirun --map-by :oversubscribe -n 15 build/MPI_Intro/MPI_Intro_Task3
 
 int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
