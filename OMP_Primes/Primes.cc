@@ -2,18 +2,15 @@
 #include <boost/program_options.hpp>
 
 #include <algorithm>
-#include <array>
 #include <atomic>
-#include <bit>
-#include <deque>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 #include <omp.h>
 
-namespace options = boost::program_options;
+namespace po = boost::program_options;
 
-constexpr bool is_composite(uint64_t number) {
+constexpr bool simple_check(uint64_t number) {
   const auto simples = {2, 3, 5, 7, 11, 13, 17, 19, 23};
   return std::any_of(simples.begin(), simples.end(), [=](uint64_t divisor) {
     if (number >= divisor * divisor && number % divisor == 0)
@@ -22,95 +19,98 @@ constexpr bool is_composite(uint64_t number) {
   });
 }
 
-uint64_t calculate_sqrt_upper_limit(uint64_t value) {
-  if (value < 2)
-    throw std::invalid_argument{"value must be at least 2"};
-
-  auto highest_bit = sizeof(uint64_t) * CHAR_BIT - std::countl_zero(value) - 1;
-  auto upper_bound_exponent = (highest_bit + 1);
-  auto sqrt_exponent = (upper_bound_exponent / 2) + (upper_bound_exponent % 2);
-
-  return (uint64_t{1} << sqrt_exponent);
+uint64_t get_sqrt_upper_bound(uint64_t n) {
+  if (n < 2)
+    throw std::invalid_argument{"number can't be smaller than 2"};
+  auto msb_index = sizeof(uint64_t) * CHAR_BIT - std::countl_zero(n) - 1;
+  auto upper_bound_pow_2 = (msb_index + 1);
+  auto sqrt_pow_upper_bound = (upper_bound_pow_2 / 2) + (upper_bound_pow_2 % 2);
+  return (uint64_t{1} << sqrt_pow_upper_bound);
 }
 
-void process(auto &prime_flags, uint64_t i, uint64_t start, uint64_t end) {
-  if (is_composite(i))
-    return;
+template<typename Primes>
+void process(Primes& primes, uint64_t from, uint64_t to) {
+  for (auto i = uint64_t{2}; i * i <= to; ++i) {
+    if (simple_check(i))
+      continue;
 
-  auto j_start = std::max(((start + i - 1) / i) * i, i * i);
-  for (auto j = j_start; j <= end; j += i)
-    prime_flags[j] = false;
+    auto start_j = std::max(((from + i - 1) / i) * i, i * i);
+    for (auto j = start_j; j <= to; j += i)
+      primes[j] = false;
+  }
 }
 
-boost::dynamic_bitset<> sequential_prime_finding(uint64_t limit) {
-  auto prime_flags = boost::dynamic_bitset(limit);
-  prime_flags.set();
-  for (auto i = uint64_t{2}; i * i <= limit; ++i)
-    process(prime_flags, i, uint64_t{2}, limit);
-  return prime_flags;
+boost::dynamic_bitset<> find_sequential(uint64_t n) {
+  auto primes = boost::dynamic_bitset(n);
+  primes.set();
+
+  for (auto i = uint64_t{2}; i < n; i ++)
+    process(primes, i, std::min(i + 1, n - 1));
+
+  return primes;
 }
 
-std::vector<std::atomic<bool>> parallel_prime_finding(uint64_t limit) {
-  auto prime_flags = std::vector<std::atomic<bool>>(limit);
+std::vector<std::atomic<bool>> find_parallel(uint64_t n) {
+  auto primes = std::vector<std::atomic<bool>>(n);
 
 #pragma omp parallel for
-  for (auto i = uint64_t{0}; i < prime_flags.size(); ++i)
-    prime_flags[i].store(true);
+  for (auto i = uint64_t{0}; i < primes.size(); ++i)
+    primes[i].store(true);
 
 #pragma omp parallel for schedule(dynamic)
-  for (auto i = uint64_t{2}; i <= calculate_sqrt_upper_limit(limit); ++i)
-    process(prime_flags, i, uint64_t{2}, limit);
+  for (auto i = uint64_t{2}; i < n; i++)
+    process(primes, i, std::min(i + 1, n));
 
-  return prime_flags;
+  return primes;
 }
 
 int main(int argc, const char **argv) {
-  auto description = options::options_description{"available options"};
-  auto limit = uint64_t{0};
+  auto desc = po::options_description{"allowed options"};
+  auto n = uint64_t{0};
 
-  auto execution_mode = std::string{};
-  auto should_print = false;
-  auto threads_count = u_int16_t{1};
+  auto mode = std::string{};
+  auto threads = int32_t{};
+  auto need_print = false;
+  
 
-  description.add_options()("help", "display this help message")(
-      "num,n", options::value(&limit)->default_value(uint64_t{1} << 20),
-      "maximum number to evaluate")(
-      "mode", options::value(&execution_mode)->default_value("parallel"))(
-      "print", options::bool_switch(&should_print)->default_value(false))(
-      "threads count,t", options::value(&threads_count)->default_value(1));
+  desc.add_options()("help", "produce this help message")(
+      "num,n", po::value(&n)->default_value(uint64_t{1} << 20),
+      "max number to check")("mode",
+                             po::value(&mode)->default_value("par"))(
+      "print", po::bool_switch(&need_print)->default_value(false))(
+      "threads,t", po::value(&threads)->default_value(int32_t{1}),
+      "threads count for parallel mode"
+      );
 
-  auto variable_map = options::variables_map{};
-  options::store(
-      options::command_line_parser(argc, argv).options(description).run(),
-      variable_map);
+  auto vm = po::variables_map{};
+  po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
 
-  if (variable_map.count("help")) {
-    std::cout << description << "\n";
-    return 0;
+  if (vm.count("help")) {
+    std::cout << desc << "\n";
+    return EXIT_FAILURE;
   }
 
-  options::notify(variable_map);
+  po::notify(vm);
 
-  auto print_primes = [&](auto &&container) {
-    if (!should_print)
+  auto print = [&](auto &&cont) {
+    if (!need_print)
       return;
-    for (auto i = uint64_t{2}; i < container.size(); ++i) {
-      if (container[i])
+    for (auto i = uint64_t{2}; i < cont.size(); ++i) {
+      if (cont[i])
         std::cout << i << "\n";
     }
   };
 
-  omp_set_num_threads(threads_count);
-  if (execution_mode == "par") {
-    omp_set_num_threads(threads_count);
-    auto prime_flags = parallel_prime_finding(limit);
-    print_primes(prime_flags);
-  } else if (execution_mode == "seq") {
-    auto prime_flags = sequential_prime_finding(limit);
-    print_primes(prime_flags);
+  if (mode == "par") {
+    omp_set_num_threads(threads);
+    auto primes = find_parallel(n);
+    print(primes);
+  } else if (mode == "seq") {
+    auto primes = find_sequential(n);
+    print(primes);
   } else {
-    std::stringstream error_stream{};
-    error_stream << "unrecognized mode " << std::quoted(execution_mode);
-    throw std::invalid_argument{std::move(error_stream).str()};
+    auto ss = std::stringstream{};
+    ss << "unknown mode " << std::quoted(mode);
+    throw std::invalid_argument{std::move(ss).str()};
   }
 }
