@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// compile:
-// mpicc task1.c
-// run:
-// mpirun --map-by :oversubscribe -n 2 a.out 1024
+// mpicc task1.c -o build/MPI_Sends/MPI_Sends_Task
+// mpirun --map-by :oversubscribe -n 2 build/MPI_Sends/MPI_Sends_Task 1024
 
 enum send_type
 {

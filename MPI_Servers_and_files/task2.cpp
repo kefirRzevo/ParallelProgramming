@@ -3,8 +3,8 @@
 #include <mpi.h>
 #include <stdexcept>
 
-// mpic++ -std=c++17 task2.cpp -O3 -o a2.out
-// mpirun --map-by :oversubscribe -n 2 a2.out
+// mpic++ -std=c++17 task2.cpp -o build/MPI_Servers_and_files/MPI_Servers_and_files_Task2
+// mpirun --map-by :oversubscribe -n 2 build/MPI_Servers_and_files/MPI_Servers_and_files_Task2
 
 auto main(int argc, char *argv[]) -> int {
   try {

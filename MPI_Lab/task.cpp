@@ -77,8 +77,8 @@
 #include <stdexcept>
 #include <vector>
 
-// mpic++ -std=c++17 task.cpp -O3 -o a.out
-// mpirun --map-by :oversubscribe -n 2 a.out
+// mpic++ -std=c++17 task.cpp -o build/MPI_Lab/MPI_Lab_Task
+// mpirun --map-by :oversubscribe -n 2 build/MPI_Lab/MPI_Lab_Task
 
 // Define some problem specific constants
 constexpr int K = 400;

@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <random>
 #include <string>
+#include <chrono>
 #include <limits>
 #include <fstream>
 #include <numeric>
@@ -10,8 +11,8 @@
 
 #include "sort.hpp"
 
-//mpic++ -std=c++17 task.cpp -O3 -o a.out
-//mpirun --map-by :oversubscribe -n 2 par 100
+//mpic++ -std=c++17 task.cpp -o build/MPI_Servers_and_files/MPI_Sort_Task
+//mpirun --map-by :oversubscribe -n 2 build/MPI_Servers_and_files/MPI_Sort_Task 100
 
 using buffer = std::vector<int>;
 

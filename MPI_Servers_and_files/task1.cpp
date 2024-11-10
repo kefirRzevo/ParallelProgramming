@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// mpic++ -std=c++17 task1.cpp -O3 -o a1.out
-// mpirun --map-by :oversubscribe -n 2 a1.out
+// mpic++ -std=c++17 task1.cpp -o build/MPI_Servers_and_files/MPI_Servers_and_files_Task1
+// mpirun --map-by :oversubscribe -n 2 build/MPI_Servers_and_files/MPI_Servers_and_files_Task1
 
 int main(int argc, char *argv[]) {
   try {

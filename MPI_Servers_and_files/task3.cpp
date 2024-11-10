@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>
 
-// mpic++ -std=c++17 task3.cpp -O3 -o a3.out
-// mpirun --map-by :oversubscribe -n 2 a3.out
+// mpic++ -std=c++17 task3.cpp -o build/MPI_Servers_and_files/MPI_Servers_and_files_Task3
+// mpirun --map-by :oversubscribe -n 2 build/MPI_Servers_and_files/MPI_Servers_and_files_Task3
 
 int main(int argc, char *argv[]) {
   try {
