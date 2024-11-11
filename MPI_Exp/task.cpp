@@ -1,4 +1,5 @@
 #include <mpi.h>
+#include <cmath>
 #include <string>
 #include <chrono>
 #include <vector>

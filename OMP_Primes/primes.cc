@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <bit>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -28,8 +29,8 @@ uint64_t get_sqrt_upper_bound(uint64_t n) {
   return (uint64_t{1} << sqrt_pow_upper_bound);
 }
 
-template<typename Primes>
-void process(Primes& primes, uint64_t from, uint64_t to) {
+template <typename Primes>
+void process(Primes &primes, uint64_t from, uint64_t to) {
   for (auto i = uint64_t{2}; i * i <= to; ++i) {
     if (simple_check(i))
       continue;
@@ -44,7 +45,7 @@ boost::dynamic_bitset<> find_sequential(uint64_t n) {
   auto primes = boost::dynamic_bitset(n);
   primes.set();
 
-  for (auto i = uint64_t{2}; i < n; i ++)
+  for (auto i = uint64_t{2}; i < n; i++)
     process(primes, i, std::min(i + 1, n - 1));
 
   return primes;
@@ -71,16 +72,13 @@ int main(int argc, const char **argv) {
   auto mode = std::string{};
   auto threads = int32_t{};
   auto need_print = false;
-  
 
   desc.add_options()("help", "produce this help message")(
       "num,n", po::value(&n)->default_value(uint64_t{1} << 20),
-      "max number to check")("mode",
-                             po::value(&mode)->default_value("par"))(
+      "max number to check")("mode", po::value(&mode)->default_value("par"))(
       "print", po::bool_switch(&need_print)->default_value(false))(
       "threads,t", po::value(&threads)->default_value(int32_t{1}),
-      "threads count for parallel mode"
-      );
+      "threads count for parallel mode");
 
   auto vm = po::variables_map{};
   po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
