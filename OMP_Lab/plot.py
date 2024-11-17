@@ -55,7 +55,8 @@ def count_time(args: list[str], prog: str) -> float:
             args=args, stdout=subprocess.PIPE, cwd=repo_path, encoding="UTF-8"
         )
         out, err = p.communicate()
-        match = re.search(r"Elapsed time:\s+([\d\.]+)\s+seconds", out)
+        pattern = r"Elapsed time:\s*([0-9]*\.?[0-9]+(?:[eE][+-]?[0-9]+)?)\s*seconds"
+        match = re.search(pattern, out)
         if match:
             elapsed_time = float(match.group(1))
             res = res + elapsed_time
@@ -123,7 +124,7 @@ def plot_speedup(ax, measures: list[measure_type], label: str):
 
 
 def main():
-    # write_data()
+    write_data()
     data = read_data()
 
     fig, ax = plt.subplots(nrows=2, figsize=[12, 10])
@@ -146,7 +147,7 @@ def main():
     ax[1].set_ylabel(r"Efficiency $E$", fontsize=18)
 
     plt.show()
-    plt.savefig(plot_path)
+    #plt.savefig(plot_path)
 
 
 if __name__ == "__main__":

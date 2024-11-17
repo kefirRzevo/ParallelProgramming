@@ -11,7 +11,7 @@ auto repo_path = fs::path{__FILE__}.parent_path().parent_path();
 
 int main(int argc, char **argv) {
 
-  auto a = two_dim_arr<double>{ISIZE, JSIZE};
+  auto a = two_dim_arr_omp<double>{ISIZE, JSIZE};
 
   for (auto i = int{}; i < ISIZE; ++i) {
     for (auto j = int{}; j < JSIZE; ++j) {

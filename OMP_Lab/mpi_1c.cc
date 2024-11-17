@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   auto rank = int{};
   MPI_Comm_size(MPI_COMM_WORLD, &commsize);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  two_dim_arr<double> a(ISIZE, JSIZE);
+  auto a = two_dim_arr_mpi<double>{ISIZE, JSIZE};
 
   const auto diff_J = int{JSIZE / commsize};
   auto start_J = int{diff_J * rank};
